@@ -13,6 +13,7 @@ class danmuServer : public QWidget
 public:
 	danmuServer(QWidget *parent = Q_NULLPTR);
 	~danmuServer();
+	
 
 private:
 	Ui::danmuServerClass ui;
@@ -20,11 +21,16 @@ private:
 	QTimer *replay;//重播弹幕的时钟
 	shootingArea shootingArea;//弹幕池
 	QUdpSocket *udpSocket;//UDP连接
-	qint16 port;
+	qint16 port;//端口
+	int frame;//帧数
+	
 
 private slots:
 	void replayDanmu();
 	void pendingMessage();
+	void changeFrame(int Newframe);
+	void changeSAFrame(int Newframe);
+	void changeSAPlayTime(int newtime);
 protected:
 	void paintEvent(QPaintEvent *);//绘图函数
 	

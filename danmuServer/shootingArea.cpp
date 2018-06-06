@@ -1,12 +1,14 @@
 #include"shootingArea.h"
 #include<QTime>
 
-const int frame = 24;//帧数
-const int playTime = 16;//一条弹幕播放时间(秒)
+
 const int WIDTH = 1920;
 shootingArea::shootingArea() 
 {
 	point = 0;//初始化控制点为0
+	PlayTime = 8;//初始化8秒
+	frame = 24;
+	
 }
 void shootingArea::insertDanmu(QString content, QColor color, QFont font, int fontSize)
 {
@@ -37,7 +39,7 @@ void shootingArea::resetDanmuPlayCount()
 }
 void shootingArea::DanmuMove()
 {
-	int speed = WIDTH / playTime / frame;//速度等于宽度除以播放时间
+	int speed = WIDTH / PlayTime / frame;//速度等于宽度除以播放时间
 	for (int i = 0; i < 10; i++)
 	{
 		if (danmubase[i].playCount < 3 && !danmubase[i].null)//播放次数小于等于3的弹幕且不为空的弹幕
@@ -52,4 +54,12 @@ void shootingArea::DanmuMove()
 
 	}
 		
+}
+void shootingArea::changePlayTime(int time)
+{
+	PlayTime = time;
+}
+void shootingArea::changeFrame(int newFrame)
+{
+	frame = newFrame;
 }

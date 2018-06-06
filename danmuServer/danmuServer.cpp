@@ -1,4 +1,5 @@
 #include "danmuServer.h"
+#include "controlBox.h"
 #include <QPainter>
 #include<QDebug>
 danmuServer::danmuServer(QWidget *parent)
@@ -7,20 +8,31 @@ danmuServer::danmuServer(QWidget *parent)
 	ui.setupUi(this);
 	Animate = new QTimer(this);
 	replay = new QTimer(this);
+	frame = 24;//初始化帧数
 	
 	setWindowFlags(Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground);//窗体透明必要设置
 
+	controlBox *control;
+	control = new  controlBox();
+	control->show();
+	
+
 	connect(Animate, SIGNAL(timeout()), this, SLOT(update()));
 	connect(replay, SIGNAL(timeout()), this, SLOT(replayDanmu()));
-	Animate->start(42);
+	Animate->start(1000/frame);//间隔为1秒除以帧数
 	replay->start(60 * 1000);//一分钟没有新内容重播
 
 	udpSocket = new QUdpSocket(this);//启动udp
 	port = 45454;//端口
 	udpSocket->bind(port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint);
 	connect(udpSocket, SIGNAL(readyRead()), this, SLOT(pendingMessage()));
-	//-------------测试数据
+	
+	connect(control, SIGNAL(SGchangeFrame(int)), this, SLOT(changeFrame(int)));//关联controlBox的信号
+	connect(control, SIGNAL(SGchangeFrame(int)), this, SLOT(changeSAFrame(int)));
+	connect(control, SIGNAL(SGchangePlayTime(int)), this, SLOT(changeSAPlayTime(int)));
+	connect(control, SIGNAL(exit()), this, SLOT(close()));
+	
 	
 	
 }
@@ -85,6 +97,24 @@ replay->stop();
 replay->start(60 * 1000);//重置replay计数器
 
 }
+}
+
+void danmuServer::changeFrame(int Newframe)
+{
+	frame = Newframe;
+	Animate->stop();
+	Animate->start(1000 / frame);//重启动画控制器
+}
+
+void danmuServer::changeSAFrame(int Newframe) 
+{
+	shootingArea.changeFrame(Newframe);
+	qDebug() << "new frame:" << Newframe;
+}
+void danmuServer::changeSAPlayTime(int newtime)
+{
+	shootingArea.changePlayTime(newtime);
+	qDebug() << "new playtime:" << newtime;
 }
 
 
